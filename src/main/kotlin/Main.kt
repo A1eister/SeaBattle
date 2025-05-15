@@ -1,76 +1,6 @@
-//package org.example
-//
-//fun main() {
-//
-//    val field = Array(10) { Array(10) { 0 } }
-//    val range = 0..9
-//    val index1 = range.random()
-//    val index2 = range.random()
-//    val orientationRange = 0..1
-//    val directionRange = 0..1
-//    val orientation = orientationRange.random()
-//    val direction = directionRange.random()
-//    val oneDeckShip = 0
-//    val twoDeckShip = 1
-//    val threeDeckShip = 2
-//    val fourDeckShip = 3
-//
-//    var isActive = true
-//    while (isActive) {
-//        if (orientation == 0) {
-//            if (direction == 0) {
-//                if (index1 - 3 < 0) {
-//                    continue
-//                }
-//                for (i in 0..fourDeckShip) {
-//                    field[index1 - i][index2] = 1
-//                }
-//                isActive=false
-//            } else {
-//                if (index1 + 3 > 9) {
-//                    continue
-//                }
-//                for (i in 0..fourDeckShip) {
-//                    field[index1 + i][index2] = 1
-//                }
-//                isActive=false
-//            }
-//        } else {
-//            if (direction == 0) {
-//                if (index2 - 3 < 0) {
-//                    continue
-//                }
-//                for (i in 0..fourDeckShip) {
-//                    field[index1][index2 - i] = 1
-//                }
-//                isActive=false
-//            } else {
-//                if (index2 + 3 > 9) {
-//                    continue
-//                }
-//                for (i in 0..fourDeckShip) {
-//                    field[index1][index2 + i] = 1
-//                }
-//                isActive=false
-//            }
-//        }}
-//
-//        for (row in field) {
-//            for (cell in row) {
-//                print("$cell \t")
-//            }
-//            println()
-//        }
-//        println()
-//
-//
-//
-//}
-//
-import kotlin.random.Random
-
 fun main() {
-    val field = Array(10) { Array(10) { 0 } }
+    val myField = Array(10) { Array(10) { 0 } }
+    val pcField = Array(10) { Array(10) { 0 } }
     val range = 0..9
     val orientationRange = 0..1
     val directionRange = 0..1
@@ -82,124 +12,40 @@ fun main() {
         1 to 4  // размер 1 — 4 штуки
     )
 
-    fun isAreaFree(field: Array<Array<Int>>, x: Int, y: Int): Boolean {
+    createField(myField, ships, range, orientationRange, directionRange)
+
+    printField(myField)
+    printField(pcField)
+
+}
+
+fun isAreaFree(field: Array<Array<Int>>, x: Int, y: Int): Boolean {
+    for (dx in -1..1) {
+        for (dy in -1..1) {
+            val nx = x + dx
+            val ny = y + dy
+            if (nx in 0..9 && ny in 0..9) {
+                if (field[nx][ny] == 1) return false
+            }
+        }
+    }
+    return true
+}
+
+fun markAroundShip(field: Array<Array<Int>>, positions: List<Pair<Int, Int>>) {
+    for ((x, y) in positions) {
         for (dx in -1..1) {
             for (dy in -1..1) {
                 val nx = x + dx
                 val ny = y + dy
-                if (nx in 0..9 && ny in 0..9) {
-                    if (field[nx][ny] != 0) return false
-                }
-            }
-        }
-        return true
-    }
-
-    fun markAroundShip(field: Array<Array<Int>>, positions: List<Pair<Int, Int>>) {
-        for ((x, y) in positions) {
-            for (dx in -1..1) {
-                for (dy in -1..1) {
-                    val nx = x + dx
-                    val ny = y + dy
-                    if (nx in 0..9 && ny in 0..9 && field[nx][ny] == 0) {
-                        field[nx][ny] = 2
-                    }
+                if (nx in 0..9 && ny in 0..9 && field[nx][ny] == 0) {
+                    field[nx][ny] = 2
                 }
             }
         }
     }
-//нет цикла вайл!!!
-    for ((size, count) in ships) {
-        repeat(count) {
-            var isActive = true
-            while (isActive) {
-                val index1 = range.random()
-                val index2 = range.random()
-                val orientation = orientationRange.random()
-                val direction = directionRange.random()
-
-                var canPlace = true
-                val positions = mutableListOf<Pair<Int, Int>>()
-
-                if (orientation == 0) { // вертикально
-                    if (direction == 0) { // вверх
-                        if (index1 - (size - 1) < 0) continue
-
-                        for (i in 0 until size) {
-                            val x = index1 - i
-                            val y = index2
-                            if (!isAreaFree(field, x, y)) {
-                                canPlace = false
-                                isActive=false
-                            }
-                            positions.add(x to y)
-                        }
-
-                    } else { // вниз
-                        if (index1 + (size - 1) > 9) continue
-
-                        for (i in 0 until size) {
-                            val x = index1 + i
-                            val y = index2
-                            if (!isAreaFree(field, x, y)) {
-                                canPlace = false
-                                isActive=false
-                            }
-                            positions.add(x to y)
-                        }
-                    }
-                } else { // горизонтально
-                    if (direction == 0) { // влево
-                        if (index2 - (size - 1) < 0) continue
-
-                        for (i in 0 until size) {
-                            val x = index1
-                            val y = index2 - i
-                            if (!isAreaFree(field, x, y)) {
-                                canPlace = false
-                                isActive=false
-                            }
-                            positions.add(x to y)
-                        }
-
-                    } else { // вправо
-                        if (index2 + (size - 1) > 9) continue
-
-                        for (i in 0 until size) {
-                            val x = index1
-                            val y = index2 + i
-                            if (!isAreaFree(field, x, y)) {
-                                canPlace = false
-                                isActive=false
-                            }
-                            positions.add(x to y)
-                        }
-                    }
-                }
-
-                if (canPlace) {
-                    // Ставим сам корабль
-                    for ((x, y) in positions) {
-                        field[x][y] = 1
-                    }
-                    // Ставим двойки вокруг корабля
-                    markAroundShip(field, positions)
-
-                    isActive = false
-                }
-            }
-        }
-    }
-
-    // Печать поля
-    for (row in field) {
-        for (cell in row) {
-            print("$cell\t")
-        }
-        println()
-    }
-    println()
 }
+
 fun playerMove(field: Array<Array<Int>>) {
     val letters = "ABCDEFGHIJ"
 
@@ -229,17 +75,123 @@ fun playerMove(field: Array<Array<Int>>) {
                 field[x][y] = 3 // 3 = подбитая часть корабля
                 break
             }
+
             0, 2 -> {
                 println("Мимо. 🌊")
                 field[x][y] = 4 // 4 = промах
                 break
             }
+
             3, 4 -> {
                 println("Вы уже стреляли сюда. Попробуйте другую клетку.")
             }
+
             else -> {
                 println("Ошибка. Попробуйте снова.")
             }
         }
     }
 }
+
+fun printField(field: Array<Array<Int>>) {
+    // Печать поля
+    for (row in field) {
+        for (cell in row) {
+            print("$cell\t")
+        }
+        println()
+    }
+    println()
+}
+
+fun createField(
+    field: Array<Array<Int>>,
+    ships: List<Pair<Int, Int>>,
+    range: IntRange,
+    orientationRange: IntRange,
+    directionRange: IntRange
+) {
+    for ((size, count) in ships) {
+        repeat(count) {
+            var isActive = true
+            while (isActive) {
+                val index1 = range.random()
+                val index2 = range.random()
+                val orientation = orientationRange.random()
+                val direction = directionRange.random()
+
+                var canPlace = true
+                val positions = mutableListOf<Pair<Int, Int>>()
+
+                if (orientation == 0) { // вертикально
+                    if (direction == 0) { // вверх
+                        if (index1 - (size - 1) < 0) continue
+
+                        for (i in 0 until size) {
+                            val x = index1 - i
+                            val y = index2
+                            if (!isAreaFree(field, x, y)) {
+                                canPlace = false
+                            }
+                            positions.add(x to y)
+                        }
+
+                    } else { // вниз
+                        if (index1 + (size - 1) > 9) continue
+
+                        for (i in 0 until size) {
+                            val x = index1 + i
+                            val y = index2
+                            if (!isAreaFree(field, x, y)) {
+                                canPlace = false
+                            }
+                            positions.add(x to y)
+                        }
+                    }
+                } else { // горизонтально
+                    if (direction == 0) { // влево
+                        if (index2 - (size - 1) < 0) continue
+
+                        for (i in 0 until size) {
+                            val x = index1
+                            val y = index2 - i
+                            if (!isAreaFree(field, x, y)) {
+                                canPlace = false
+                            }
+                            positions.add(x to y)
+                        }
+
+                    } else { // вправо
+                        if (index2 + (size - 1) > 9) continue
+
+                        for (i in 0 until size) {
+                            val x = index1
+                            val y = index2 + i
+                            if (!isAreaFree(field, x, y)) {
+                                canPlace = false
+                            }
+                            positions.add(x to y)
+                        }
+                    }
+                }
+
+                if (canPlace) {
+                    // Ставим сам корабль
+                    for ((x, y) in positions) {
+                        field[x][y] = 1
+                    }
+                    // Ставим двойки вокруг корабля
+                    markAroundShip(field, positions)
+                }
+                isActive = !canPlace
+            }
+        }
+    }
+}
+
+// функции внутри других функций не инициализируются. Всегда каждая функция объявляется сама по себе, отдельно от других.
+
+
+// 1 - нет печати обозначения рядов и колонок. Т.е. А-К и 1-10 нужно распечатать сверху и слева от поля.
+// 2 - функция playerMove пока нигде не используется, нужно ее прикрутить и посмотреть на нее со всеми вытекающими
+// 3 - сделать цикл с ходами (только игрока)
