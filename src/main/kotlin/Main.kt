@@ -13,8 +13,19 @@ fun main() {
     )
 
     createField(myField, ships, range, orientationRange, directionRange)
+    createField(pcField, ships, range, orientationRange, directionRange)
 
+    println("Мое поле:")
     printField(myField)
+
+    println("\nПоле компьютера:")
+    printField(pcField.map { row -> row.map { if (it == 1 || it == 2) 0 else it }.toTypedArray() }.toTypedArray())
+
+    // Ход
+    println("\nВаш ход:")
+    playerMove(pcField)
+
+    println("\nПоле компьютера после выстрела:")
     printField(pcField)
 
 }
@@ -47,7 +58,7 @@ fun markAroundShip(field: Array<Array<Int>>, positions: List<Pair<Int, Int>>) {
 }
 
 fun playerMove(field: Array<Array<Int>>) {
-    val letters = "ABCDEFGHIJ"
+    val letters = "АБВГДЕЖЗИК"
 
     while (true) {
         print("Введите координаты (например, A1): ")
@@ -93,15 +104,16 @@ fun playerMove(field: Array<Array<Int>>) {
     }
 }
 
+
 fun printField(field: Array<Array<Int>>) {
-    // Печать поля
-    for (row in field) {
-        for (cell in row) {
-            print("$cell\t")
+    println("    А Б В Г Д Е Ж З И К")
+    for (i in 0..9) {
+        print("${(i + 1).toString().padStart(2)}| ")
+        for (j in 0..9) {
+            print("${field[i][j]} ")
         }
         println()
     }
-    println()
 }
 
 fun createField(
@@ -192,6 +204,6 @@ fun createField(
 // функции внутри других функций не инициализируются. Всегда каждая функция объявляется сама по себе, отдельно от других.
 
 
-// 1 - нет печати обозначения рядов и колонок. Т.е. А-К и 1-10 нужно распечатать сверху и слева от поля.
+// !1 - нет печати обозначения рядов и колонок. Т.е. А-К и 1-10 нужно распечатать сверху и слева от поля.
 // 2 - функция playerMove пока нигде не используется, нужно ее прикрутить и посмотреть на нее со всеми вытекающими
 // 3 - сделать цикл с ходами (только игрока)
