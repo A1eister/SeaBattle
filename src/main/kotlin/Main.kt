@@ -59,26 +59,16 @@ fun markAroundShip(field: Array<Array<Int>>, positions: List<Pair<Int, Int>>) {
 
 fun playerMove(field: Array<Array<Int>>) {
     val letters = "АБВГДЕЖЗИК"
-
     while (true) {
         print("Введите координаты (например, A1): ")
         val input = readlnOrNull()?.trim()?.uppercase() ?: continue
 
-        if (input.length < 2 || input.length > 3) {
-            println("Неверный формат. Попробуйте снова.")
+        if (!validation(input)){
             continue
         }
 
-        val letter = input[0]
-        val numberPart = input.substring(1)
-
-        val x = letters.indexOf(letter)
-        val y = numberPart.toIntOrNull()?.minus(1) ?: -1
-
-        if (x !in 0..9 || y !in 0..9) {
-            println("Координаты вне поля. Попробуйте снова.")
-            continue
-        }
+        val y = letters.indexOf(input[0])
+        val x = input[1].digitToIntOrNull()?.minus(1) ?: -1
 
         when (field[x][y]) {
             1 -> {
@@ -199,6 +189,36 @@ fun createField(
             }
         }
     }
+}
+fun validation (input: String): Boolean{
+    val letters = "АБВГДЕЖЗИК"
+    var y = 1
+    if (input.length < 2 || input.length > 3) {
+    println("Неверный формат. Попробуйте снова.")
+        return false
+    }
+    if (input.length == 3) {
+        if (input[1].digitToIntOrNull() !=1 && input[2].digitToIntOrNull() !=0){
+
+        println("Неверно. Попробуйте снова.")
+        return false
+        } else y = 9
+    }else {
+        val numberPart = input[1]
+        y = numberPart.digitToIntOrNull()?.minus(1) ?: -1
+    }
+
+
+        val letter = input[0]
+
+
+    val x = letters.indexOf(letter)
+
+if (x !in 0..9 || y !in 0..9) {
+    println("Координаты вне поля. Попробуйте снова.")
+    return false
+}
+    return true
 }
 
 // функции внутри других функций не инициализируются. Всегда каждая функция объявляется сама по себе, отдельно от других.
