@@ -15,19 +15,31 @@ fun main() {
     createField(myField, ships, range, orientationRange, directionRange)
     createField(pcField, ships, range, orientationRange, directionRange)
 
-    println("Мое поле:")
-    printField(myField)
+    var gameOver = false
 
-    println("\nПоле компьютера:")
-    printField(pcField.map { row -> row.map { if (it == 1 || it == 2) 0 else it }.toTypedArray() }.toTypedArray())
+    while (!gameOver) {
+        println("Ваше поле:")
+        printField(myField)
 
-    // Ход
-    println("\nВаш ход:")
-    playerMove(pcField)
+        println("\nПоле компьютера:")
+        printPcField(pcField)
 
-    println("\nПоле компьютера после выстрела:")
-    printField(pcField)
+        println("\nВаш ход:")
+        playerMove(pcField)
 
+        if (checkWin(pcField)) {
+            println("Вы победили!")
+            gameOver = true
+        }
+
+        println("\nХод компьютера:")
+        aiMove(myField)
+
+        if (checkWin(myField)) {
+            println("💥 Компьютер победил!")
+            gameOver = true
+        }
+    }
 }
 
 fun isAreaFree(field: Array<Array<Int>>, x: Int, y: Int): Boolean {
@@ -68,17 +80,17 @@ fun playerMove(field: Array<Array<Int>>) {
         }
 
         val y = letters.indexOf(input[0])
-        val x = input[1].digitToIntOrNull()?.minus(1) ?: -1
+        val x = input.substring(1).toIntOrNull()?.minus(1) ?: -1
 
         when (field[x][y]) {
             1 -> {
-                println("Попадание! 🔥")
+                println("Попадание!")
                 field[x][y] = 3 // 3 = подбитая часть корабля
                 break
             }
 
             0, 2 -> {
-                println("Мимо. 🌊")
+                println("Мимо")
                 field[x][y] = 4 // 4 = промах
                 break
             }
@@ -90,6 +102,34 @@ fun playerMove(field: Array<Array<Int>>) {
             else -> {
                 println("Ошибка. Попробуйте снова.")
             }
+        }
+    }
+}
+
+fun aiMove(field: Array<Array<Int>>) {
+    val letters = "АБВГДЕЖЗИК"
+    val PcShot = mutableListOf<Pair<Int, Int>>()
+
+    for (i in 0..9) {
+        for (j in 0..9) {
+            if (field[i][j] == 0 || field[i][j] == 2 || field[i][j] == 1) {
+                PcShot.add(i to j)
+            }
+        }
+    }
+
+    if (PcShot.isEmpty()) return
+
+    val (x, y) = PcShot.random()
+
+    when (field[x][y]) {
+        1 -> {
+            println("Компьютер попал в ${letters[y]}${x + 1}!")
+            field[x][y] = 3
+        }
+        0, 2 -> {
+            println("Компьютер промахнулся в ${letters[y]}${x + 1}.")
+            field[x][y] = 4
         }
     }
 }
@@ -106,6 +146,21 @@ fun printField(field: Array<Array<Int>>) {
     }
 }
 
+fun printPcField(field: Array<Array<Int>>) {
+    println("    А Б В Г Д Е Ж З И К")
+    for (i in 0..9) {
+        print("${i.toString().padStart(2)}| ")
+        for (j in 0..9) {
+            val cell = when (field[i][j]) {
+                3 -> 3 // попадание
+                4 -> 4 // промах
+                else -> 0 // остальное скрыто
+            }
+            print("$cell ")
+        }
+        println()
+    }
+}
 fun createField(
     field: Array<Array<Int>>,
     ships: List<Pair<Int, Int>>,
@@ -190,6 +245,12 @@ fun createField(
         }
     }
 }
+fun checkWin(field: Array<Array<Int>>): Boolean {
+    for (row in field) {
+        if (row.contains(1)) return false
+    }
+    return true
+}
 fun validation (input: String): Boolean{
     val letters = "АБВГДЕЖЗИК"
     var y = 1
@@ -224,6 +285,6 @@ if (x !in 0..9 || y !in 0..9) {
 // функции внутри других функций не инициализируются. Всегда каждая функция объявляется сама по себе, отдельно от других.
 
 
-// !1 - нет печати обозначения рядов и колонок. Т.е. А-К и 1-10 нужно распечатать сверху и слева от поля.
-// 2 - функция playerMove пока нигде не используется, нужно ее прикрутить и посмотреть на нее со всеми вытекающими
-// 3 - сделать цикл с ходами (только игрока)
+// 1! - сделать верную обработку А10 в playerMove
+// 2! - сделать цикл с ходами (только игрока)
+// 3! - ход компуктера после твоего промаха
